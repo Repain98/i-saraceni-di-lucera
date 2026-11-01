@@ -1,0 +1,62 @@
+---
+import Arches from "./Arches.astro";
+import Logo from "./Logo.astro";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+	<Arches class="site-footer__arches" />
+
+	<div class="container">
+		<div class="footer-grid">
+			<div class="footer-brand">
+				<Logo />
+				<p>
+					Podismo a Lucera. Strada, campestre, pista e trail: un gruppo affiatato
+					che corre per vincere e per divertirsi.
+				</p>
+				<div class="footer-social" role="group" aria-label="Social">
+					<span>Facebook · [DA COMPILARE]</span>
+					<span>Instagram · [DA COMPILARE]</span>
+					<span>YouTube · [DA COMPILARE]</span>
+				</div>
+			</div>
+
+			<div>
+				<h2 class="footer-title">Contatti</h2>
+				<ul class="footer-list">
+					<li>Email: [DA COMPILARE]</li>
+					<li>Telefono: [DA COMPILARE]</li>
+					<li>Sede: [DA COMPILARE]</li>
+					<li>Allenamenti: [DA COMPILARE]</li>
+				</ul>
+			</div>
+
+			<div>
+				<h2 class="footer-title">Link utili</h2>
+				<ul class="footer-list">
+					<li><a href="/chi-siamo">Chi siamo</a></li>
+					<li><a href="/calendario">Calendario gare</a></li>
+					<li><a href="/news">News</a></li>
+					<li><a href="/stralucera">Stralucera</a></li>
+					<li><a href="/unisciti-a-noi">Unisciti a noi</a></li>
+					<li><a href="/contatti">Contatti</a></li>
+				</ul>
+			</div>
+		</div>
+
+		<div class="footer-sponsors">
+			<strong>Sponsor</strong>
+			<span>[DA COMPILARE]</span>
+			<span>[DA COMPILARE]</span>
+			<span>[DA COMPILARE]</span>
+		</div>
+
+		<div class="footer-bottom">
+			<p>© {year} ASD I Saraceni di Lucera</p>
+			<p class="footer-fidal">ASD affiliata FIDAL · Codice FG806</p>
+			<p>Questo sito non usa cookie di profilazione.</p>
+		</div>
+	</div>
+</footer>

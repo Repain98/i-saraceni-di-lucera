@@ -1,11 +1,217 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Arches from "../components/Arches.astro";
+import Layout from "../layouts/Layout.astro";
+import siteSettings from "../data/site.json";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+const isPlaceholder = (value: string) =>
+	value.includes("[DA COMPILARE]") || value.includes("[DA CONFERMARE]");
 ---
 
-<Layout>
-	<Welcome />
+<Layout
+	title="I Saraceni di Lucera – Podismo a Lucera"
+	description="ASD I Saraceni di Lucera, podismo agonistico e amatoriale affiliato FIDAL FG806. Gare su strada, campestre, pista e trail. Vincere e divertirsi, insieme."
+>
+	<section class="hero">
+		<Arches class="hero__arches" />
+
+		<div class="container hero__grid">
+			<div>
+				<p class="eyebrow eyebrow--lime">ASD di podismo · Lucera · FIDAL FG806</p>
+				<h1 class="hero__title">Vincere<br /><span class="text-lime">e divertirsi.</span></h1>
+				<p class="hero__lead">
+					Corriamo insieme tra strada, campestre, pista e trail. Un gruppo affiatato
+					che porta il nome di Lucera nei campionati FIDAL e nei circuiti provinciali
+					della Capitanata.
+				</p>
+				<div class="hero__actions">
+					<a class="btn" href="/unisciti-a-noi"><span>Unisciti a noi</span></a>
+					<a class="btn btn--ghost" href="/calendario"><span>Prossime gare</span></a>
+				</div>
+			</div>
+
+			<div class="hero__photo" role="img" aria-label="Foto segnaposto della squadra">
+				<Arches class="hero__photo-arches" />
+				<div class="hero__photo-content">
+					<p class="hero__photo-label">Foto segnaposto</p>
+					<p class="hero__photo-note">La foto della squadra arriverà dal pannello di gestione.</p>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section section--light section--slant section--from-navy">
+		<div class="container">
+			<div class="section__head">
+				<p class="eyebrow">Il club in numeri</p>
+				<h2 class="title-underline">Una squadra che cresce</h2>
+				{siteSettings.showDemoNumbersNotice && (
+					<p class="muted">
+						Numeri dimostrativi: i valori sono segnaposto e saranno modificabili dal
+						pannello di gestione, senza toccare il codice.
+					</p>
+				)}
+			</div>
+
+			<div class="stats">
+				{siteSettings.stats.map((stat) => (
+					<div class="stat">
+						<span
+							class:list={[
+								"stat__value",
+								{ "stat__value--placeholder": isPlaceholder(stat.value) },
+							]}
+						>
+							{stat.value}
+						</span>
+						<span class="stat__label">{stat.label}</span>
+					</div>
+				))}
+			</div>
+		</div>
+	</section>
+
+	<section class="section section--soft section--slant section--from-light">
+		<div class="container">
+			<div class="section__head">
+				<p class="eyebrow">Calendario</p>
+				<h2 class="title-underline">Prossima gara</h2>
+				<p class="muted">
+					Questa scheda è un'anteprima. Il sito sceglierà automaticamente la prossima
+					gara confrontando la data con quella del browser.
+				</p>
+			</div>
+
+			<article class="card">
+				<div class="card__body">
+					<p class="card__kicker">[ESEMPIO] · 8 dicembre 2026</p>
+					<h3>Gran Prix Capitanata – San Severo</h3>
+					<p class="muted">
+						San Severo (FG) · 10 km su strada · Gara inserita nel circuito provinciale.
+					</p>
+					<a class="link-arrow" href="/calendario">Vedi il calendario</a>
+				</div>
+			</article>
+		</div>
+	</section>
+
+	<section class="section section--light">
+		<div class="container">
+			<div class="section__head">
+				<p class="eyebrow">Dal gruppo</p>
+				<h2 class="title-underline">Ultime notizie</h2>
+			</div>
+
+			<div class="grid-3">
+				<article class="card">
+					<div class="media-placeholder">
+						<Arches />
+						<span>Foto segnaposto</span>
+					</div>
+					<div class="card__body">
+						<p class="card__kicker">6 settembre 2026</p>
+						<h3>Stralucera 2026</h3>
+						<p class="muted">
+							Oltre 350 atleti hanno corso la prima edizione della 10 km di Lucera.
+						</p>
+					</div>
+				</article>
+
+				<article class="card">
+					<div class="media-placeholder">
+						<Arches />
+						<span>Foto segnaposto</span>
+					</div>
+					<div class="card__body">
+						<p class="card__kicker">Stagione 2026</p>
+						<h3>Campionati Italiani di campestre</h3>
+						<p class="muted">
+							Un altro traguardo di squadra per i colori saraceni.
+						</p>
+					</div>
+				</article>
+
+				<article class="card">
+					<div class="media-placeholder">
+						<Arches />
+						<span>Foto segnaposto</span>
+					</div>
+					<div class="card__body">
+						<p class="card__kicker">La società</p>
+						<h3>Il nome e la storia di Lucera</h3>
+						<p class="muted">
+							Archi, memoria e identità: il nostro modo di raccontare la città.
+						</p>
+					</div>
+				</article>
+			</div>
+		</div>
+	</section>
+
+	<section class="section section--navy section--slant section--from-light">
+		<div class="container">
+			<div class="section__head">
+				<p class="eyebrow eyebrow--lime">Allenamenti</p>
+				<h2 class="title-underline">Dove e quando ci alleniamo</h2>
+				<p>
+					Gli orari e i luoghi saranno compilati dal pannello di gestione. Chi vuole
+					provare può scrivere alla società.
+				</p>
+			</div>
+
+			<ul class="trainings">
+				<li class="training-row">
+					<strong>[DA COMPILARE]</strong>
+					<span>[DA COMPILARE] · [DA COMPILARE]</span>
+					<span>Note: [DA COMPILARE]</span>
+				</li>
+				<li class="training-row">
+					<strong>[DA COMPILARE]</strong>
+					<span>[DA COMPILARE] · [DA COMPILARE]</span>
+					<span>Note: [DA COMPILARE]</span>
+				</li>
+			</ul>
+
+			<div class="hero__actions">
+				<a class="btn" href="/unisciti-a-noi"><span>Vieni a provare</span></a>
+			</div>
+		</div>
+	</section>
+
+	<section class="section section--soft section--slant section--from-navy">
+		<div class="container">
+			<div class="section__head">
+				<p class="eyebrow">Con il sostegno di</p>
+				<h2 class="title-underline">Sponsor</h2>
+				<p class="muted">
+					Spazio riservato agli sponsor della società. Nomi e loghi saranno inseriti
+					dal pannello di gestione.
+				</p>
+			</div>
+
+			<div class="sponsor-strip" aria-label="Sponsor">
+				<div class="sponsor-slot">[DA COMPILARE]</div>
+				<div class="sponsor-slot">[DA COMPILARE]</div>
+				<div class="sponsor-slot">[DA COMPILARE]</div>
+				<div class="sponsor-slot">[DA COMPILARE]</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="section section--navy section--slant section--from-soft">
+		<div class="container">
+			<div class="cta-panel">
+				<Arches class="cta-panel__arches" />
+				<p class="eyebrow">Ti aspettiamo</p>
+				<h2>La prossima corsa può essere la tua.</h2>
+				<p>
+					Non serve essere velocissimi: serve voglia di stare insieme, allenarsi e
+					portare i colori di Lucera lungo il percorso.
+				</p>
+				<div class="hero__actions">
+					<a class="btn btn--navy" href="/unisciti-a-noi"><span>Unisciti a noi</span></a>
+					<a class="btn btn--outline" href="/contatti"><span>Contattaci</span></a>
+				</div>
+			</div>
+		</div>
+	</section>
 </Layout>

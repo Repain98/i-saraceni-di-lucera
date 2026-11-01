@@ -1,0 +1,123 @@
+---
+import Logo from "./Logo.astro";
+
+const path = Astro.url.pathname;
+
+const navLinks = [
+	{ href: "/chi-siamo", label: "Chi siamo" },
+	{ href: "/calendario", label: "Calendario" },
+	{ href: "/news", label: "News" },
+	{ href: "/galleria", label: "Galleria" },
+	{ href: "/palmares", label: "Palmarès" },
+	{ href: "/stralucera", label: "Stralucera" },
+	{ href: "/contatti", label: "Contatti" },
+];
+
+const mobileLinks = [{ href: "/", label: "Home" }, ...navLinks];
+
+const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
+---
+
+<header class="site-header">
+	<div class="container site-header__inner">
+		<Logo />
+
+		<nav class="site-nav" aria-label="Navigazione principale">
+			{navLinks.map((link) => (
+				<a
+					class="site-nav__link"
+					href={link.href}
+					aria-current={isActive(link.href) ? "page" : undefined}
+				>
+					{link.label}
+				</a>
+			))}
+		</nav>
+
+		<div class="header-actions">
+			<a class="btn btn--sm" href="/unisciti-a-noi"><span>Unisciti a noi</span></a>
+			<button
+				class="menu-toggle"
+				type="button"
+				aria-controls="menu-mobile"
+				aria-expanded="false"
+				aria-label="Apri il menu"
+				data-menu-toggle
+			>
+				<span class="menu-toggle__icon" aria-hidden="true">
+					<span></span>
+					<span></span>
+					<span></span>
+				</span>
+			</button>
+		</div>
+	</div>
+</header>
+
+<nav class="mobile-menu" id="menu-mobile" aria-label="Menu di navigazione" data-mobile-menu hidden>
+	<ul class="mobile-menu__list">
+		{mobileLinks.map((link) => (
+			<li>
+				<a
+					class="mobile-menu__link"
+					href={link.href}
+					aria-current={isActive(link.href) ? "page" : undefined}
+				>
+					{link.label}
+				</a>
+			</li>
+		))}
+	</ul>
+	<a class="btn mobile-menu__cta" href="/unisciti-a-noi"><span>Unisciti a noi</span></a>
+</nav>
+
+<script is:inline>
+	(() => {
+		const toggle = document.querySelector("[data-menu-toggle]");
+		const menu = document.querySelector("[data-mobile-menu]");
+
+		if (!toggle || !menu) return;
+
+		const firstLink = menu.querySelector("a");
+
+		const closeMenu = (restoreFocus = false) => {
+			menu.hidden = true;
+			toggle.setAttribute("aria-expanded", "false");
+			toggle.setAttribute("aria-label", "Apri il menu");
+			document.documentElement.classList.remove("menu-open");
+
+			if (restoreFocus && menu.contains(document.activeElement)) {
+				toggle.focus();
+			}
+		};
+
+		const openMenu = () => {
+			menu.hidden = false;
+			toggle.setAttribute("aria-expanded", "true");
+			toggle.setAttribute("aria-label", "Chiudi il menu");
+			document.documentElement.classList.add("menu-open");
+
+			if (firstLink) firstLink.focus();
+		};
+
+		toggle.addEventListener("click", () => {
+			if (toggle.getAttribute("aria-expanded") === "true") {
+				closeMenu(true);
+			} else {
+				openMenu();
+			}
+		});
+
+		menu.querySelectorAll("a").forEach((link) => {
+			link.addEventListener("click", () => closeMenu(false));
+		});
+
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && !menu.hidden) closeMenu(true);
+		});
+
+		window.addEventListener("resize", () => {
+			if (window.innerWidth > 1100 && !menu.hidden) closeMenu(false);
+		});
+	})();
+</script>

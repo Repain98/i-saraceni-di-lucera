@@ -1,0 +1,31 @@
+---
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<svg
+	class:list={["arches", className]}
+	viewBox="0 0 640 360"
+	fill="none"
+	aria-hidden="true"
+	focusable="false"
+>
+	<path
+		d="M20 350V190C20 98.8 93.8 25 185 25s165 73.8 165 165v160"
+		stroke="currentColor"
+		stroke-width="10"
+	/>
+	<path
+		d="M250 350V205c0-66.3 53.7-120 120-120s120 53.7 120 120v145"
+		stroke="currentColor"
+		stroke-width="8"
+	/>
+	<path
+		d="M455 350V225c0-38.7 31.3-70 70-70s70 31.3 70 70v125"
+		stroke="currentColor"
+		stroke-width="6"
+	/>
+</svg>

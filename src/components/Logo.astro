@@ -1,0 +1,26 @@
+---
+interface Props {
+	class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<a class:list={["logo", className]} href="/" aria-label="I Saraceni di Lucera – torna alla home">
+	<svg class="logo__mark" viewBox="0 0 48 48" fill="none" aria-hidden="true">
+		<path
+			d="M6 42V25C6 15.06 14.06 7 24 7s18 8.06 18 18v17"
+			stroke="currentColor"
+			stroke-width="3.5"
+			stroke-linecap="square"
+		/>
+		<path
+			d="M16 42V27c0-4.42 3.58-8 8-8s8 3.58 8 8v15"
+			stroke="currentColor"
+			stroke-width="3"
+			stroke-linecap="square"
+		/>
+		<path d="M24 42V31" stroke="currentColor" stroke-width="3" />
+	</svg>
+	<span class="logo__text">I Saraceni<small>Di Lucera</small></span>
+</a>
