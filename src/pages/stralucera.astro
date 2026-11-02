@@ -1,0 +1,179 @@
+---
+import { getCollection } from "astro:content";
+import Arches from "../components/Arches.astro";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+import { resolveImage } from "../lib/images";
+
+const edizioni = (await getCollection("stralucera")).sort((a, b) => b.data.anno - a.data.anno);
+const edizione = edizioni[0];
+const immagine = resolveImage(edizione?.data.immagine);
+
+const dataFormattata = edizione?.data.data.toLocaleDateString("it-IT", {
+	weekday: "long",
+	day: "numeric",
+	month: "long",
+	year: "numeric",
+});
+
+const dettagli = edizione
+	? [
+			{ etichetta: "Data", valore: dataFormattata },
+			{ etichetta: "Partenza", valore: edizione.data.partenza },
+			{ etichetta: "Luogo", valore: edizione.data.luogo },
+			{ etichetta: "Distanza", valore: edizione.data.distanza },
+			{ etichetta: "Circuito", valore: edizione.data.circuito },
+			{ etichetta: "Organizzazione", valore: edizione.data.organizzazione },
+			{ etichetta: "Partecipanti", valore: edizione.data.partecipanti },
+			{ etichetta: "Maglia", valore: edizione.data.maglia },
+			{ etichetta: "Medaglia", valore: edizione.data.medaglia },
+		].filter((dettaglio) => dettaglio.valore)
+	: [];
+
+const notaFonte = edizione?.data.nota_fonte?.trim();
+const invitoTitolo = edizione?.data.invito_titolo ?? "Resta aggiornato";
+const invitoTesto =
+	edizione?.data.invito_testo ??
+	"Segui il calendario e i nostri canali per le novità.";
+---
+
+<Layout
+	title="Stralucera"
+	description="La Stralucera, la corsa organizzata a Lucera dall'ASD I Saraceni di Lucera."
+>
+	<PageHero
+		eyebrow="La corsa di Lucera"
+		title={edizione ? `Stralucera ${edizione.data.anno}` : "Stralucera"}
+		lead={edizione?.data.descrizione ?? "La corsa organizzata dai Saraceni tra le strade di Lucera."}
+		image={immagine}
+		imageAlt="La Stralucera a Lucera"
+	/>
+
+	{
+		edizione ? (
+			<>
+				<section class="section section--light">
+					<div class="container">
+						<div class="section__head">
+							<p class="eyebrow">L'edizione</p>
+							<h2 class="title-underline">I numeri della gara</h2>
+						</div>
+
+						<div class="info-grid">
+							{dettagli.map((dettaglio) => (
+								<div class="info-card">
+									<span class="info-card__label">{dettaglio.etichetta}</span>
+									<span class="info-card__value">{dettaglio.valore}</span>
+								</div>
+							))}
+						</div>
+					</div>
+				</section>
+
+				{edizione.data.vincitori.length > 0 && (
+					<section class="section section--soft">
+						<div class="container">
+							<div class="section__head">
+								<p class="eyebrow">Al traguardo</p>
+								<h2 class="title-underline">I vincitori</h2>
+							</div>
+
+							<div class="results-cards">
+								{edizione.data.vincitori.map((vincitore) => (
+									<article class="result-card">
+										<p class="result-card__name">{vincitore.nome}</p>
+										<dl class="result-card__meta">
+											{vincitore.societa && (
+												<div>
+													<dt>Società</dt>
+													<dd>{vincitore.societa}</dd>
+												</div>
+											)}
+											{vincitore.tempo && (
+												<div>
+													<dt>Tempo</dt>
+													<dd>{vincitore.tempo}</dd>
+												</div>
+											)}
+										</dl>
+									</article>
+								))}
+							</div>
+
+							<div class="results-table-wrap">
+								<table class="results-table">
+									<thead>
+										<tr>
+											<th scope="col">Atleta</th>
+											<th scope="col">Società</th>
+											<th scope="col">Tempo</th>
+										</tr>
+									</thead>
+									<tbody>
+										{edizione.data.vincitori.map((vincitore) => (
+											<tr>
+												<th scope="row">{vincitore.nome}</th>
+												<td>{vincitore.societa ?? "—"}</td>
+												<td>{vincitore.tempo ?? "—"}</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+
+							{notaFonte && <p class="results-source">Nota o fonte: {notaFonte}</p>}
+						</div>
+					</section>
+				)}
+
+				{edizioni.length > 1 && (
+					<section class="section section--light">
+						<div class="container">
+							<div class="section__head">
+								<p class="eyebrow">Archivio</p>
+								<h2 class="title-underline">Le altre edizioni</h2>
+							</div>
+							<ul class="edition-list">
+								{edizioni.slice(1).map((altra) => (
+									<li class="edition-row">
+										<strong>Stralucera {altra.data.anno}</strong>
+										<span>
+											{altra.data.data.toLocaleDateString("it-IT", {
+												day: "numeric",
+												month: "long",
+												year: "numeric",
+											})}
+											{" · "}
+											{altra.data.distanza}
+										</span>
+									</li>
+								))}
+							</ul>
+						</div>
+					</section>
+				)}
+
+				<section class="section section--navy">
+					<div class="container">
+						<div class="cta-panel panel--lime">
+							<Arches class="cta-panel__arches" />
+							<p class="eyebrow">Prossima edizione</p>
+							<h2>{invitoTitolo}</h2>
+							<p>{invitoTesto}</p>
+							<div class="hero__actions">
+								<a class="btn btn--navy" href="/calendario"><span>Calendario gare</span></a>
+								<a class="btn btn--outline" href="/contatti"><span>Contattaci</span></a>
+							</div>
+						</div>
+					</div>
+				</section>
+			</>
+		) : (
+			<section class="section section--light">
+				<div class="container">
+					<p class="empty-state">Le informazioni sulla Stralucera saranno pubblicate presto.</p>
+				</div>
+			</section>
+		)
+	}
+</Layout>

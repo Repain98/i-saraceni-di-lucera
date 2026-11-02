@@ -8,6 +8,7 @@ import "../styles/global.css";
 
 import Footer from "../components/Footer.astro";
 import Header from "../components/Header.astro";
+import { getSiteData } from "../lib/site";
 
 interface Props {
 	title?: string;
@@ -16,8 +17,10 @@ interface Props {
 	noindex?: boolean;
 }
 
-const siteName = "I Saraceni di Lucera";
+const site = await getSiteData();
+const siteName = site.nome_sito;
 const defaultDescription =
+	site.descrizione_sito ??
 	"ASD I Saraceni di Lucera: podismo agonistico e amatoriale a Lucera, affiliata FIDAL FG806. Gare su strada, campestre, pista e trail, con lo spirito di vincere e divertirsi.";
 
 const {

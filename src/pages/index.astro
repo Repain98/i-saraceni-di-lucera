@@ -1,40 +1,115 @@
 ---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
 import Arches from "../components/Arches.astro";
+import NewsCard from "../components/NewsCard.astro";
 import Layout from "../layouts/Layout.astro";
-import siteSettings from "../data/site.json";
+import { trainingDetails } from "../lib/contact";
+import { resolveImage } from "../lib/images";
+import { getSiteData } from "../lib/site";
+
+const site = await getSiteData();
 
 const isPlaceholder = (value: string) =>
-	value.includes("[DA COMPILARE]") || value.includes("[DA CONFERMARE]");
+	!value || value.includes("[DA COMPILARE]") || value.includes("[DA CONFERMARE]");
+const isTrial = (value: string) => /\[(ESEMPIO|PROVA)\]/i.test(value);
+const withTrialMarker = (value: string, esempio: boolean) =>
+	esempio && !isTrial(value) ? `[ESEMPIO] ${value}` : value;
+
+const statisticheReali = site.statistiche.filter(
+	(stat) => !isPlaceholder(stat.valore) && !isTrial(stat.valore),
+);
+const statistiche =
+	statisticheReali.length > 0
+		? statisticheReali
+		: [
+				{ valore: "[DA COMPILARE]", etichetta: "Soci" },
+				{ valore: "[DA COMPILARE]", etichetta: "Gare" },
+				{ valore: "[DA COMPILARE]", etichetta: "Podio" },
+			];
+const mostraAvvisoNumeri = statisticheReali.length === 0;
+
+const news = (await getCollection("news"))
+	.sort((a, b) => (b.data.data?.getTime() ?? 0) - (a.data.data?.getTime() ?? 0))
+	.slice(0, 3);
+
+const gare = (await getCollection("gare")).sort(
+	(a, b) => a.data.data.getTime() - b.data.data.getTime(),
+);
+const prossimaGara = gare.find((gara) => gara.data.data >= new Date()) ?? gare.at(-1);
+const dataGara = prossimaGara?.data.data.toLocaleDateString("it-IT", {
+	day: "numeric",
+	month: "long",
+	year: "numeric",
+});
+const dettagliGara = prossimaGara
+	? [prossimaGara.data.luogo, prossimaGara.data.distanza, prossimaGara.data.tipo]
+			.filter(Boolean)
+			.join(" · ")
+	: "";
+const etichettaGara =
+	prossimaGara && prossimaGara.data.esempio && !isTrial(prossimaGara.data.titolo)
+		? `[ESEMPIO] · ${dataGara}`
+		: (dataGara ?? "");
+
+const allenamenti = (await getCollection("allenamenti")).sort(
+	(a, b) => a.data.ordine - b.data.ordine,
+);
+const sponsor = (await getCollection("sponsor")).sort(
+	(a, b) => a.data.ordine - b.data.ordine,
+);
+
+const heroImmagine = resolveImage(site.hero_immagine);
 ---
 
 <Layout
 	title="I Saraceni di Lucera – Podismo a Lucera"
-	description="ASD I Saraceni di Lucera, podismo agonistico e amatoriale affiliato FIDAL FG806. Gare su strada, campestre, pista e trail. Vincere e divertirsi, insieme."
+	description={site.descrizione_sito}
 >
 	<section class="hero">
 		<Arches class="hero__arches" />
 
 		<div class="container hero__grid">
 			<div>
-				<p class="eyebrow eyebrow--lime">ASD di podismo · Lucera · FIDAL FG806</p>
-				<h1 class="hero__title">Vincere<br /><span class="text-lime">e divertirsi.</span></h1>
-				<p class="hero__lead">
-					Corriamo insieme tra strada, campestre, pista e trail. Un gruppo affiatato
-					che porta il nome di Lucera nei campionati FIDAL e nei circuiti provinciali
-					della Capitanata.
-				</p>
+				<p class="eyebrow eyebrow--lime">{site.hero_etichetta}</p>
+				<h1 class="hero__title">
+					{site.hero_titolo}<br />
+					<span class="text-lime">{site.hero_titolo_evidenziato}</span>
+				</h1>
+				<p class="hero__lead">{site.hero_testo}</p>
 				<div class="hero__actions">
 					<a class="btn" href="/unisciti-a-noi"><span>Unisciti a noi</span></a>
 					<a class="btn btn--ghost" href="/calendario"><span>Prossime gare</span></a>
 				</div>
 			</div>
 
-			<div class="hero__photo" role="img" aria-label="Foto segnaposto della squadra">
-				<Arches class="hero__photo-arches" />
-				<div class="hero__photo-content">
-					<p class="hero__photo-label">Foto segnaposto</p>
-					<p class="hero__photo-note">La foto della squadra arriverà dal pannello di gestione.</p>
-				</div>
+			<div
+				class="hero__photo"
+				role={heroImmagine ? undefined : "img"}
+				aria-label={heroImmagine ? undefined : "Foto segnaposto della squadra"}
+			>
+				{
+					heroImmagine ? (
+						<Image
+							class="hero__photo-img"
+							src={heroImmagine}
+							alt="La squadra dei Saraceni di Lucera"
+							widths={[480, 800, 1200]}
+							sizes="(min-width: 900px) 46vw, 100vw"
+							format="webp"
+							loading="eager"
+							decoding="async"
+						/>
+					) : (
+						<>
+							<Arches class="hero__photo-arches" />
+							<div class="hero__photo-content">
+								<p class="hero__photo-label">Foto segnaposto</p>
+								<p class="hero__photo-note">{site.notaFotoSegnaposto}</p>
+							</div>
+						</>
+					)
+				}
 			</div>
 		</div>
 	</section>
@@ -44,7 +119,7 @@ const isPlaceholder = (value: string) =>
 			<div class="section__head">
 				<p class="eyebrow">Il club in numeri</p>
 				<h2 class="title-underline">Una squadra che cresce</h2>
-				{siteSettings.showDemoNumbersNotice && (
+				{mostraAvvisoNumeri && (
 					<p class="muted">
 						Numeri dimostrativi: i valori sono segnaposto e saranno modificabili dal
 						pannello di gestione, senza toccare il codice.
@@ -53,17 +128,17 @@ const isPlaceholder = (value: string) =>
 			</div>
 
 			<div class="stats">
-				{siteSettings.stats.map((stat) => (
+				{statistiche.map((stat) => (
 					<div class="stat">
 						<span
 							class:list={[
 								"stat__value",
-								{ "stat__value--placeholder": isPlaceholder(stat.value) },
+								{ "stat__value--placeholder": isPlaceholder(stat.valore) },
 							]}
 						>
-							{stat.value}
+							{stat.valore}
 						</span>
-						<span class="stat__label">{stat.label}</span>
+						<span class="stat__label">{stat.etichetta}</span>
 					</div>
 				))}
 			</div>
@@ -76,21 +151,26 @@ const isPlaceholder = (value: string) =>
 				<p class="eyebrow">Calendario</p>
 				<h2 class="title-underline">Prossima gara</h2>
 				<p class="muted">
-					Questa scheda è un'anteprima. Il sito sceglierà automaticamente la prossima
-					gara confrontando la data con quella del browser.
+					Questa scheda mostra il prossimo appuntamento del calendario. La gara viene
+					scelta automaticamente in base alla data.
 				</p>
 			</div>
 
-			<article class="card">
-				<div class="card__body">
-					<p class="card__kicker">[ESEMPIO] · 8 dicembre 2026</p>
-					<h3>Gran Prix Capitanata – San Severo</h3>
-					<p class="muted">
-						San Severo (FG) · 10 km su strada · Gara inserita nel circuito provinciale.
-					</p>
-					<a class="link-arrow" href="/calendario">Vedi il calendario</a>
-				</div>
-			</article>
+			{prossimaGara ? (
+				<article class="card">
+					<div class="card__body">
+						<p class="card__kicker">{etichettaGara}</p>
+						<h3>{prossimaGara.data.titolo}</h3>
+						<p class="muted">{dettagliGara}</p>
+						{prossimaGara.data.descrizione && (
+							<p class="muted">{prossimaGara.data.descrizione}</p>
+						)}
+						<a class="link-arrow" href="/calendario">Vedi il calendario</a>
+					</div>
+				</article>
+			) : (
+				<p class="muted">Calendario in aggiornamento.</p>
+			)}
 		</div>
 	</section>
 
@@ -101,48 +181,18 @@ const isPlaceholder = (value: string) =>
 				<h2 class="title-underline">Ultime notizie</h2>
 			</div>
 
-			<div class="grid-3">
-				<article class="card">
-					<div class="media-placeholder">
-						<Arches />
-						<span>Foto segnaposto</span>
-					</div>
-					<div class="card__body">
-						<p class="card__kicker">6 settembre 2026</p>
-						<h3>Stralucera 2026</h3>
-						<p class="muted">
-							Oltre 350 atleti hanno corso la prima edizione della 10 km di Lucera.
-						</p>
-					</div>
-				</article>
-
-				<article class="card">
-					<div class="media-placeholder">
-						<Arches />
-						<span>Foto segnaposto</span>
-					</div>
-					<div class="card__body">
-						<p class="card__kicker">Stagione 2026</p>
-						<h3>Campionati Italiani di campestre</h3>
-						<p class="muted">
-							Un altro traguardo di squadra per i colori saraceni.
-						</p>
-					</div>
-				</article>
-
-				<article class="card">
-					<div class="media-placeholder">
-						<Arches />
-						<span>Foto segnaposto</span>
-					</div>
-					<div class="card__body">
-						<p class="card__kicker">La società</p>
-						<h3>Il nome e la storia di Lucera</h3>
-						<p class="muted">
-							Archi, memoria e identità: il nostro modo di raccontare la città.
-						</p>
-					</div>
-				</article>
+			<div class="news-grid">
+				{news.map((notizia) => (
+					<NewsCard
+						titolo={notizia.data.titolo}
+						estratto={notizia.data.estratto}
+						data={notizia.data.data}
+						categoria={notizia.data.categoria}
+						copertina={notizia.data.copertina}
+						esempio={notizia.data.esempio}
+						href={`/news/${notizia.id}`}
+					/>
+				))}
 			</div>
 		</div>
 	</section>
@@ -151,7 +201,7 @@ const isPlaceholder = (value: string) =>
 		<div class="container">
 			<div class="section__head">
 				<p class="eyebrow eyebrow--lime">Allenamenti</p>
-				<h2 class="title-underline">Dove e quando ci alleniamo</h2>
+				<h2 class="title-underline">Giorni e orari degli allenamenti</h2>
 				<p>
 					Gli orari e i luoghi saranno compilati dal pannello di gestione. Chi vuole
 					provare può scrivere alla società.
@@ -159,16 +209,13 @@ const isPlaceholder = (value: string) =>
 			</div>
 
 			<ul class="trainings">
-				<li class="training-row">
-					<strong>[DA COMPILARE]</strong>
-					<span>[DA COMPILARE] · [DA COMPILARE]</span>
-					<span>Note: [DA COMPILARE]</span>
-				</li>
-				<li class="training-row">
-					<strong>[DA COMPILARE]</strong>
-					<span>[DA COMPILARE] · [DA COMPILARE]</span>
-					<span>Note: [DA COMPILARE]</span>
-				</li>
+				{allenamenti.map((seduta) => (
+					<li class="training-row">
+						<strong>{withTrialMarker(seduta.data.giorno, seduta.data.esempio)}</strong>
+						<span>{trainingDetails(seduta.data.orario, seduta.data.luogo)}</span>
+						{seduta.data.note && <span>Note: {seduta.data.note}</span>}
+					</li>
+				))}
 			</ul>
 
 			<div class="hero__actions">
@@ -189,17 +236,16 @@ const isPlaceholder = (value: string) =>
 			</div>
 
 			<div class="sponsor-strip" aria-label="Sponsor">
-				<div class="sponsor-slot">[DA COMPILARE]</div>
-				<div class="sponsor-slot">[DA COMPILARE]</div>
-				<div class="sponsor-slot">[DA COMPILARE]</div>
-				<div class="sponsor-slot">[DA COMPILARE]</div>
+				{sponsor.map((voce) => (
+					<div class="sponsor-slot">{voce.data.nome}</div>
+				))}
 			</div>
 		</div>
 	</section>
 
 	<section class="section section--navy section--slant section--from-soft">
 		<div class="container">
-			<div class="cta-panel">
+			<div class="cta-panel panel--lime">
 				<Arches class="cta-panel__arches" />
 				<p class="eyebrow">Ti aspettiamo</p>
 				<h2>La prossima corsa può essere la tua.</h2>

@@ -4,7 +4,10 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "dev:cms": "node scripts/dev-cms.mjs",
+    "cms": "npx --yes decap-server",
     "build": "astro build",
+    "check:placeholders": "node scripts/check-placeholders.mjs",
     "preview": "astro preview",
     "astro": "astro"
   },

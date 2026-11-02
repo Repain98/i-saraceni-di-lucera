@@ -1,6 +1,33 @@
 ---
+import { getCollection } from "astro:content";
 import Arches from "./Arches.astro";
 import Logo from "./Logo.astro";
+import { isPlaceholder, isWebUrl, phoneUrl, whatsappUrl } from "../lib/contact";
+import { getSiteData } from "../lib/site";
+
+const site = await getSiteData();
+
+const allenamenti = (await getCollection("allenamenti")).sort(
+	(a, b) => a.data.ordine - b.data.ordine,
+);
+const sponsor = (await getCollection("sponsor")).sort(
+	(a, b) => a.data.ordine - b.data.ordine,
+);
+
+const telefono = phoneUrl(site.telefono);
+const whatsapp = whatsappUrl(site.whatsapp);
+const mappe = isWebUrl(site.google_maps) ? site.google_maps : undefined;
+
+const social = [
+	{ label: "Facebook", url: site.facebook },
+	{ label: "Instagram", url: site.instagram },
+	{ label: "YouTube", url: site.youtube },
+];
+
+const primoAllenamento = allenamenti[0];
+const testoAllenamenti = primoAllenamento
+	? `${primoAllenamento.data.giorno} · ${primoAllenamento.data.orario}`
+	: "[DA COMPILARE]";
 
 const year = new Date().getFullYear();
 ---
@@ -12,24 +39,62 @@ const year = new Date().getFullYear();
 		<div class="footer-grid">
 			<div class="footer-brand">
 				<Logo />
-				<p>
-					Podismo a Lucera. Strada, campestre, pista e trail: un gruppo affiatato
-					che corre per vincere e per divertirsi.
-				</p>
+				<p>{site.testo_footer}</p>
 				<div class="footer-social" role="group" aria-label="Social">
-					<span>Facebook · [DA COMPILARE]</span>
-					<span>Instagram · [DA COMPILARE]</span>
-					<span>YouTube · [DA COMPILARE]</span>
+					{
+						social.map(({ label, url }) => (
+							<span>
+								{isWebUrl(url) ? (
+									<a href={url} target="_blank" rel="noreferrer">{label}</a>
+								) : (
+									`${label} · [DA COMPILARE]`
+								)}
+							</span>
+						))
+					}
 				</div>
 			</div>
 
 			<div>
 				<h2 class="footer-title">Contatti</h2>
 				<ul class="footer-list">
-					<li>Email: [DA COMPILARE]</li>
-					<li>Telefono: [DA COMPILARE]</li>
-					<li>Sede: [DA COMPILARE]</li>
-					<li>Allenamenti: [DA COMPILARE]</li>
+					<li>
+						Email:{" "}
+						{isPlaceholder(site.email) ? (
+							site.email
+						) : (
+							<a href={`mailto:${site.email}`}>{site.email}</a>
+						)}
+					</li>
+					<li>
+						Telefono:{" "}
+						{telefono ? (
+							<a href={telefono}>{site.telefono}</a>
+						) : (
+							site.telefono
+						)}
+					</li>
+					<li>
+						WhatsApp:{" "}
+						{whatsapp ? (
+							<a href={whatsapp} target="_blank" rel="noreferrer">
+								{site.whatsapp}
+							</a>
+						) : (
+							site.whatsapp
+						)}
+					</li>
+					<li>
+						Sede:{" "}
+						{mappe ? (
+							<a href={mappe} target="_blank" rel="noreferrer">
+								{site.sede}
+							</a>
+						) : (
+							site.sede
+						)}
+					</li>
+					<li>Allenamenti: {testoAllenamenti}</li>
 				</ul>
 			</div>
 
@@ -42,20 +107,19 @@ const year = new Date().getFullYear();
 					<li><a href="/stralucera">Stralucera</a></li>
 					<li><a href="/unisciti-a-noi">Unisciti a noi</a></li>
 					<li><a href="/contatti">Contatti</a></li>
+					<li><a href="/privacy">Privacy</a></li>
 				</ul>
 			</div>
 		</div>
 
 		<div class="footer-sponsors">
 			<strong>Sponsor</strong>
-			<span>[DA COMPILARE]</span>
-			<span>[DA COMPILARE]</span>
-			<span>[DA COMPILARE]</span>
+			{sponsor.map((voce) => <span>{voce.data.nome}</span>)}
 		</div>
 
 		<div class="footer-bottom">
 			<p>© {year} ASD I Saraceni di Lucera</p>
-			<p class="footer-fidal">ASD affiliata FIDAL · Codice FG806</p>
+			<p class="footer-fidal">ASD affiliata FIDAL · Codice {site.codice_fidal}</p>
 			<p>Questo sito non usa cookie di profilazione.</p>
 		</div>
 	</div>

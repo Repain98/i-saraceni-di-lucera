@@ -1,0 +1,62 @@
+---
+import { Image } from "astro:assets";
+import Arches from "./Arches.astro";
+import { resolveImage } from "../lib/images";
+
+interface Props {
+	titolo: string;
+	estratto: string;
+	data?: Date;
+	categoria?: string;
+	copertina?: string;
+	esempio?: boolean;
+	href?: string;
+}
+
+const { titolo, estratto, data, categoria, copertina, esempio = false, href } = Astro.props;
+const Wrapper = href ? "a" : "div";
+const immagine = resolveImage(copertina);
+const dataFormattata = data?.toLocaleDateString("it-IT", {
+	day: "numeric",
+	month: "long",
+	year: "numeric",
+});
+const mostraSegnalazione = esempio && !/\[(ESEMPIO|PROVA)\]/i.test(titolo);
+const etichetta = [
+	mostraSegnalazione ? "[ESEMPIO]" : null,
+	dataFormattata ?? categoria,
+]
+	.filter(Boolean)
+	.join(" · ");
+---
+
+<article class="card news-card">
+	<Wrapper class="news-card__link" href={href}>
+		<div class="news-card__media">
+			{
+				immagine ? (
+					<Image
+						src={immagine}
+						alt={titolo}
+						widths={[480, 720, 960]}
+						sizes="(min-width: 900px) 40vw, 100vw"
+						format="webp"
+						loading="lazy"
+						decoding="async"
+					/>
+				) : (
+					<div class="media-placeholder">
+						<Arches />
+						<span>Foto in arrivo</span>
+					</div>
+				)
+			}
+		</div>
+		<div class="card__body">
+			{etichetta && <p class="card__kicker">{etichetta}</p>}
+			<h3>{titolo}</h3>
+			<p class="muted">{estratto}</p>
+			{href && <span class="news-card__more">Leggi la notizia →</span>}
+		</div>
+	</Wrapper>
+</article>

@@ -1,18 +1,3 @@
 {
-	"showDemoNumbersNotice": true,
-	"foundedYear": "[DA CONFERMARE]",
-	"stats": [
-		{
-			"label": "Soci",
-			"value": "[DA COMPILARE]"
-		},
-		{
-			"label": "Gare all'anno",
-			"value": "[DA COMPILARE]"
-		},
-		{
-			"label": "Anni di attività",
-			"value": "[DA COMPILARE]"
-		}
-	]
+  "notaFotoSegnaposto": "La foto della squadra arriverà dal pannello di gestione."
 }

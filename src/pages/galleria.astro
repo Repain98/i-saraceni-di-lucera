@@ -1,0 +1,82 @@
+---
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import Arches from "../components/Arches.astro";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+import { resolveImage } from "../lib/images";
+
+const album = (await getCollection("galleria")).sort((a, b) => {
+	const dataA = a.data.data?.getTime() ?? 0;
+	const dataB = b.data.data?.getTime() ?? 0;
+	return dataB - dataA || a.data.titolo.localeCompare(b.data.titolo, "it");
+});
+---
+
+<Layout
+	title="Galleria"
+	description="Le foto delle gare, degli allenamenti e della vita dell'ASD I Saraceni di Lucera."
+>
+	<PageHero
+		eyebrow="Le nostre corse"
+		title="Galleria"
+		lead="Immagini dalle gare e dagli allenamenti. Gli album di prova sono indicati con [ESEMPIO]."
+	/>
+
+	<section class="section section--light">
+		<div class="container">
+			{
+				album.length > 0 ? (
+					<div class="gallery-grid">
+						{album.map((voce) => {
+							const copertina = resolveImage(voce.data.copertina ?? voce.data.immagini[0]);
+							const numeroFoto = voce.data.immagini.length;
+							const dataFormattata = voce.data.data?.toLocaleDateString("it-IT", {
+								day: "numeric",
+								month: "long",
+								year: "numeric",
+							});
+
+							return (
+								<article class="gallery-card card">
+									<div class="gallery-card__media">
+										{copertina ? (
+											<Image
+												src={copertina}
+												alt={voce.data.titolo}
+												widths={[480, 720, 960]}
+												sizes="(min-width: 900px) 30vw, 100vw"
+												format="webp"
+												loading="lazy"
+												decoding="async"
+											/>
+										) : (
+											<div class="media-placeholder">
+												<Arches />
+												<span>Foto in arrivo</span>
+											</div>
+										)}
+									</div>
+									<div class="card__body">
+										<p class="card__kicker">
+											{numeroFoto > 0
+												? `${numeroFoto} ${numeroFoto === 1 ? "foto" : "foto"}`
+												: "Album in preparazione"}
+											{dataFormattata ? ` · ${dataFormattata}` : ""}
+										</p>
+										<h2>{voce.data.titolo}</h2>
+										{voce.data.descrizione && (
+											<p class="muted">{voce.data.descrizione}</p>
+										)}
+									</div>
+								</article>
+							);
+						})}
+					</div>
+				) : (
+					<p class="empty-state">Le prime foto arriveranno presto.</p>
+				)
+			}
+		</div>
+	</section>
+</Layout>

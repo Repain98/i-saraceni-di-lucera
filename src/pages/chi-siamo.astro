@@ -1,0 +1,91 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import Arches from "../components/Arches.astro";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+import { getSiteData } from "../lib/site";
+
+const pagina = await getEntry("pagine", "chi-siamo");
+if (!pagina) throw new Error("Pagina Chi siamo non trovata.");
+
+const { Content } = await render(pagina);
+const corpoVuoto = !pagina.body?.trim();
+const site = await getSiteData();
+const allenamenti = (await getCollection("allenamenti")).sort(
+	(a, b) => a.data.ordine - b.data.ordine,
+);
+const primoAllenamento = allenamenti[0];
+
+const fatti = [
+	{ etichetta: "Fondazione", valore: site.anno_fondazione },
+	{ etichetta: "Affiliazione", valore: `FIDAL · ${site.codice_fidal}` },
+	{ etichetta: "Sede", valore: site.sede },
+	{
+		etichetta: "Allenamenti",
+		valore: primoAllenamento
+			? `${primoAllenamento.data.giorno} · ${primoAllenamento.data.orario}`
+			: "[DA COMPILARE]",
+	},
+];
+---
+
+<Layout
+	title={pagina.data.titolo}
+	description={pagina.data.descrizione ?? pagina.data.intro}
+>
+	<PageHero
+		eyebrow="La società"
+		title={pagina.data.titolo}
+		lead={pagina.data.intro ?? pagina.data.descrizione}
+	/>
+
+	<section class="section section--light">
+		<div class="container content-grid">
+			<div class="prose">
+				{corpoVuoto ? (
+					import.meta.env.DEV && (
+						<p class="page-placeholder">
+							Testo della pagina da completare dal pannello di gestione.
+						</p>
+					)
+				) : (
+					<Content />
+				)}
+			</div>
+
+			<aside class="info-panel" aria-label="Dati della società">
+				<p class="eyebrow">In sintesi</p>
+				<h2>I Saraceni</h2>
+				<dl class="fact-list">
+					{
+						fatti.map((fatto) => (
+							<div class="fact">
+								<dt>{fatto.etichetta}</dt>
+								<dd>{fatto.valore}</dd>
+							</div>
+						))
+					}
+				</dl>
+				<a class="link-arrow" href="/contatti">Contattaci</a>
+			</aside>
+		</div>
+	</section>
+
+	<section class="section section--soft">
+		<div class="container">
+			<div class="cta-panel panel--lime">
+				<Arches class="cta-panel__arches" />
+				<p class="eyebrow">La prossima corsa</p>
+				<h2>Corri con noi.</h2>
+				<p>
+					Non serve essere velocissimi: serve voglia di stare insieme, allenarsi e
+					portare i colori di Lucera lungo il percorso.
+				</p>
+				<div class="hero__actions">
+					<a class="btn btn--navy" href="/unisciti-a-noi"><span>Unisciti a noi</span></a>
+					<a class="btn btn--outline" href="/calendario"><span>Calendario gare</span></a>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>

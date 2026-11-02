@@ -1,0 +1,135 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+import { isPlaceholder, isWebUrl, phoneUrl, whatsappUrl } from "../lib/contact";
+import { getSiteData } from "../lib/site";
+
+const pagina = await getEntry("pagine", "contatti");
+if (!pagina) throw new Error("Pagina Contatti non trovata.");
+
+const { Content } = await render(pagina);
+const site = await getSiteData();
+const allenamenti = (await getCollection("allenamenti")).sort(
+	(a, b) => a.data.ordine - b.data.ordine,
+);
+
+const corpoVuoto = !pagina.body?.trim();
+const emailDisponibile = !isPlaceholder(site.email);
+const telefono = phoneUrl(site.telefono);
+const whatsapp = whatsappUrl(site.whatsapp);
+const mapsDisponibile = isWebUrl(site.google_maps);
+
+const social = [
+	{ label: "Facebook", url: site.facebook },
+	{ label: "Instagram", url: site.instagram },
+	{ label: "YouTube", url: site.youtube },
+];
+---
+
+<Layout
+	title={pagina.data.titolo}
+	description={pagina.data.descrizione ?? pagina.data.intro}
+>
+	<PageHero
+		eyebrow="Parliamone"
+		title={pagina.data.titolo}
+		lead={pagina.data.intro ?? pagina.data.descrizione}
+	/>
+
+	<section class="section section--light">
+		<div class="container">
+			{corpoVuoto ? (
+				import.meta.env.DEV && (
+					<p class="page-placeholder">
+						Testo della pagina da completare dal pannello di gestione.
+					</p>
+				)
+			) : (
+				<div class="contact-intro prose">
+					<Content />
+				</div>
+			)}
+
+			<div class="contact-layout">
+				<div class="contact-grid">
+					<article class="contact-card">
+						<p class="eyebrow">Email</p>
+						<h2>Scrivici</h2>
+						{emailDisponibile ? (
+							<a href={`mailto:${site.email}`}>{site.email}</a>
+						) : (
+							<p>{site.email}</p>
+						)}
+					</article>
+
+					<article class="contact-card">
+						<p class="eyebrow">Telefono</p>
+						<h2>Chiamaci</h2>
+						{telefono ? (
+							<a href={telefono}>{site.telefono}</a>
+						) : (
+							<p>{site.telefono}</p>
+						)}
+					</article>
+
+					<article class="contact-card">
+						<p class="eyebrow">WhatsApp</p>
+						<h2>Messaggio rapido</h2>
+						{whatsapp ? (
+							<a href={whatsapp} target="_blank" rel="noreferrer">{site.whatsapp}</a>
+						) : (
+							<p>{site.whatsapp}</p>
+						)}
+					</article>
+
+					<article class="contact-card">
+						<p class="eyebrow">Sede</p>
+						<h2>Dove siamo</h2>
+						<p>{site.sede}</p>
+						{mapsDisponibile && (
+							<a class="link-arrow" href={site.google_maps} target="_blank" rel="noreferrer">
+								Apri Google Maps
+							</a>
+						)}
+					</article>
+				</div>
+
+				<aside class="info-panel" aria-label="Informazioni sulla società">
+					<p class="eyebrow">In sintesi</p>
+					<h2>La società</h2>
+					<dl class="fact-list">
+						<div class="fact">
+							<dt>Affiliazione</dt>
+							<dd>FIDAL · {site.codice_fidal}</dd>
+						</div>
+						<div class="fact">
+							<dt>Fondazione</dt>
+							<dd>{site.anno_fondazione}</dd>
+						</div>
+						<div class="fact">
+							<dt>Allenamenti</dt>
+							<dd>
+								{allenamenti.length > 0
+									? `${allenamenti[0].data.giorno} · ${allenamenti[0].data.orario}`
+									: "[DA COMPILARE]"}
+							</dd>
+						</div>
+					</dl>
+
+					<ul class="contact-social">
+						{social.map((voce) => (
+							<li>
+								{isWebUrl(voce.url) ? (
+									<a href={voce.url} target="_blank" rel="noreferrer">{voce.label}</a>
+								) : (
+									<span>{voce.label} · [DA COMPILARE]</span>
+								)}
+							</li>
+						))}
+					</ul>
+				</aside>
+			</div>
+		</div>
+	</section>
+</Layout>

@@ -1,0 +1,80 @@
+---
+import { getCollection } from "astro:content";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+import { isPlaceholder } from "../lib/contact";
+
+const voci = (await getCollection("palmares")).sort((a, b) => {
+	return b.data.anno - a.data.anno || a.data.competizione.localeCompare(b.data.competizione, "it");
+});
+
+const anni = [...new Set(voci.map((voce) => voce.data.anno))].sort((a, b) => b - a);
+
+const gruppi = anni.map((anno) => ({
+	anno,
+	annoDaConfermare: voci.some(
+		(voce) => voce.data.anno === anno && voce.data.anno_da_confermare,
+	),
+	voci: voci.filter((voce) => voce.data.anno === anno),
+}));
+---
+
+<Layout
+	title="Palmarès"
+	description="I risultati, i traguardi e le tappe della storia dell'ASD I Saraceni di Lucera."
+>
+	<PageHero
+		eyebrow="La nostra storia"
+		title="Palmarès"
+		lead="Risultati di squadra, organizzazione di gare e traguardi raggiunti. Le voci di prova sono indicate con [ESEMPIO]."
+	/>
+
+	<section class="section section--light">
+		<div class="container">
+			{
+				gruppi.length > 0 ? (
+					<div class="palmares-years">
+						{gruppi.map((gruppo) => (
+							<section class="palmares-year" aria-labelledby={`anno-${gruppo.anno}`}>
+								<div class="palmares-year__head">
+									<h2 id={`anno-${gruppo.anno}`}>{gruppo.anno}</h2>
+									{gruppo.annoDaConfermare && (
+										<span class="tag">Anno da confermare</span>
+									)}
+								</div>
+
+								<div class="palmares-list">
+									{gruppo.voci.map((voce) => (
+										<article class="palmares-item">
+											<div class="palmares-item__head">
+												<h3>{voce.data.competizione}</h3>
+												{voce.data.categoria && (
+													<span class="tag">{voce.data.categoria}</span>
+												)}
+											</div>
+											{voce.data.risultato && (
+												<p
+													class:list={[
+														"palmares-item__result",
+														{ "palmares-item__result--placeholder": isPlaceholder(voce.data.risultato) },
+													]}
+												>
+													{voce.data.risultato}
+												</p>
+											)}
+											{voce.data.descrizione && (
+												<p class="muted">{voce.data.descrizione}</p>
+											)}
+										</article>
+									))}
+								</div>
+							</section>
+						))}
+					</div>
+				) : (
+					<p class="empty-state">Il palmarès sarà aggiornato dal pannello di gestione.</p>
+				)
+			}
+		</div>
+	</section>
+</Layout>

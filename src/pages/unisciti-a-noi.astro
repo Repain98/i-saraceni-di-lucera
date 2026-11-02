@@ -1,0 +1,137 @@
+---
+import { getCollection, getEntry, render } from "astro:content";
+import Arches from "../components/Arches.astro";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+import { isPlaceholder, trainingDetails, whatsappUrl } from "../lib/contact";
+import { getSiteData } from "../lib/site";
+
+const pagina = await getEntry("pagine", "unisciti-a-noi");
+if (!pagina) throw new Error("Pagina Unisciti a noi non trovata.");
+
+const { Content } = await render(pagina);
+const corpoVuoto = !pagina.body?.trim();
+const site = await getSiteData();
+const allenamenti = (await getCollection("allenamenti")).sort(
+	(a, b) => a.data.ordine - b.data.ordine,
+);
+
+const emailDisponibile = !isPlaceholder(site.email);
+const whatsapp = whatsappUrl(site.whatsapp);
+
+const passi = [
+	{
+		titolo: "Scrivici",
+		testo: "Raccontaci chi sei e cosa ti piacerebbe fare. Ti risponderemo con tutte le informazioni.",
+	},
+	{
+		titolo: "Vieni a provare",
+		testo: "Partecipa a un allenamento: conoscerai il gruppo e capirai come lavoriamo insieme.",
+	},
+	{
+		titolo: "Attiva l'iscrizione",
+		testo: "Completa l'iscrizione alla società e ricevi le indicazioni per gare e attività.",
+	},
+];
+---
+
+<Layout
+	title={pagina.data.titolo}
+	description={pagina.data.descrizione ?? pagina.data.intro}
+>
+	<PageHero
+		eyebrow="Corri con noi"
+		title={pagina.data.titolo}
+		lead={pagina.data.intro ?? pagina.data.descrizione}
+	/>
+
+	<section class="section section--light">
+		<div class="container content-grid">
+			<div class="prose">
+				{corpoVuoto ? (
+					import.meta.env.DEV && (
+						<p class="page-placeholder">
+							Testo della pagina da completare dal pannello di gestione.
+						</p>
+					)
+				) : (
+					<Content />
+				)}
+			</div>
+
+			<aside class="info-panel" aria-label="Come iniziare">
+				<p class="eyebrow">Come iniziare</p>
+				<h2>Tre passi</h2>
+				<ol class="step-list">
+					{
+						passi.map((passo, indice) => (
+							<li class="step">
+								<span class="step__number">{String(indice + 1).padStart(2, "0")}</span>
+								<div>
+									<strong>{passo.titolo}</strong>
+									<p>{passo.testo}</p>
+								</div>
+							</li>
+						))
+					}
+				</ol>
+
+				<div class="hero__actions">
+					{emailDisponibile ? (
+						<a class="btn btn--sm" href={`mailto:${site.email}`}><span>Scrivici</span></a>
+					) : (
+						<a class="btn btn--sm" href="/contatti"><span>Vai ai contatti</span></a>
+					)}
+					{whatsapp && (
+						<a class="btn btn--sm btn--ghost" href={whatsapp} target="_blank" rel="noreferrer">
+							<span>WhatsApp</span>
+						</a>
+					)}
+				</div>
+			</aside>
+		</div>
+	</section>
+
+	<section class="section section--navy">
+		<div class="container">
+			<div class="section__head">
+				<p class="eyebrow eyebrow--lime">Allenamenti</p>
+				<h2 class="title-underline">Giorni e orari degli allenamenti</h2>
+				<p>
+					Orari e luoghi sono gestiti dal pannello di gestione. Le voci di prova sono
+					indicate con [ESEMPIO].
+				</p>
+			</div>
+
+			<ul class="trainings">
+				{
+					allenamenti.map((seduta) => (
+						<li class="training-row">
+							<strong>{seduta.data.giorno}</strong>
+							<span>{trainingDetails(seduta.data.orario, seduta.data.luogo)}</span>
+							{seduta.data.note && <span>Note: {seduta.data.note}</span>}
+						</li>
+					))
+				}
+			</ul>
+		</div>
+	</section>
+
+	<section class="section section--soft">
+		<div class="container">
+			<div class="cta-panel panel--lime">
+				<Arches class="cta-panel__arches" />
+				<p class="eyebrow">Ti aspettiamo</p>
+				<h2>La prossima corsa può essere la tua.</h2>
+				<p>
+					Non serve essere velocissimi: serve voglia di stare insieme, allenarsi e
+					portare i colori di Lucera lungo il percorso.
+				</p>
+				<div class="hero__actions">
+					<a class="btn btn--navy" href="/calendario"><span>Calendario gare</span></a>
+					<a class="btn btn--outline" href="/contatti"><span>Contattaci</span></a>
+				</div>
+			</div>
+		</div>
+	</section>
+</Layout>

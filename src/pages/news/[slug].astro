@@ -1,0 +1,65 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import PageHero from "../../components/PageHero.astro";
+import Layout from "../../layouts/Layout.astro";
+import { resolveImage } from "../../lib/images";
+
+export async function getStaticPaths() {
+	const news = await getCollection("news");
+	return news.map((notizia) => ({
+		params: { slug: notizia.id },
+		props: { notizia },
+	}));
+}
+
+interface Props {
+	notizia: CollectionEntry<"news">;
+}
+
+const { notizia } = Astro.props;
+const { Content } = await render(notizia);
+const immagine = resolveImage(notizia.data.copertina);
+const dataFormattata = notizia.data.data?.toLocaleDateString("it-IT", {
+	day: "numeric",
+	month: "long",
+	year: "numeric",
+});
+const meta = [notizia.data.categoria, dataFormattata].filter(Boolean).join(" · ");
+const primaFrase =
+	notizia.body?.trim().match(/^.*?[.!?](?=\s|$)/s)?.[0]?.trim() ?? "";
+const mostraEstratto = notizia.data.estratto.trim() !== primaFrase;
+---
+
+<Layout
+	title={notizia.data.titolo}
+	description={notizia.data.estratto}
+	image={notizia.data.copertina}
+>
+	<PageHero
+		eyebrow={notizia.data.categoria ?? "News"}
+		title={notizia.data.titolo}
+		lead={mostraEstratto ? notizia.data.estratto : undefined}
+		image={immagine}
+		imageAlt={notizia.data.titolo}
+	/>
+
+	<section class="section section--light">
+		<div class="container article-shell">
+			<div class="article-meta">
+				<a class="link-arrow" href="/news">Tutte le news</a>
+				{meta && <span>{meta}</span>}
+			</div>
+
+			{notizia.data.esempio && (
+				<p class="trial-note">
+					Questa è una notizia di prova. I dati e il testo saranno completati dal
+					pannello di gestione.
+				</p>
+			)}
+
+			<div class="prose">
+				<Content />
+			</div>
+		</div>
+	</section>
+</Layout>

@@ -1,0 +1,116 @@
+---
+import { getCollection } from "astro:content";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+import { isWebUrl } from "../lib/contact";
+
+const gare = (await getCollection("gare")).sort(
+	(a, b) => a.data.data.getTime() - b.data.data.getTime(),
+);
+
+const oggi = new Date();
+oggi.setHours(0, 0, 0, 0);
+
+const prossime = gare.filter((gara) => gara.data.data >= oggi);
+const passate = gare.filter((gara) => gara.data.data < oggi).reverse();
+
+const isTrial = (value: string) => /\[(ESEMPIO|PROVA)\]/i.test(value);
+
+const giornoSettimana = (data: Date) =>
+	data.toLocaleDateString("it-IT", { weekday: "long" });
+---
+
+<Layout
+	title="Calendario gare"
+	description="Le prossime gare e gli appuntamenti dell'ASD I Saraceni di Lucera."
+>
+	<PageHero
+		eyebrow="Strada, campestre, pista e trail"
+		title="Calendario gare"
+		lead="Gli appuntamenti del club, con luogo, distanza e informazioni utili. Le voci di prova sono indicate con [ESEMPIO]."
+	/>
+
+	<section class="section section--light">
+		<div class="container">
+			<div class="section__head">
+				<p class="eyebrow">In programma</p>
+				<h2 class="title-underline">Prossime gare</h2>
+			</div>
+
+			{
+				prossime.length > 0 ? (
+					<ul class="event-list">
+						{prossime.map((gara) => (
+							<li class="event-card">
+								<time
+									class="event-card__date"
+									datetime={gara.data.data.toISOString().slice(0, 10)}
+								>
+									<span class="event-card__weekday">{giornoSettimana(gara.data.data)}</span>
+								</time>
+								<div class="event-card__body">
+									<p class="card__kicker">
+										{gara.data.esempio && !isTrial(gara.data.titolo) ? "[ESEMPIO] · " : ""}
+										{gara.data.tipo}
+										{gara.data.distanza ? ` · ${gara.data.distanza}` : ""}
+									</p>
+									<h3>{gara.data.titolo}</h3>
+									<p class="event-card__place">{gara.data.luogo}</p>
+									{gara.data.descrizione && <p>{gara.data.descrizione}</p>}
+									{isWebUrl(gara.data.link) && (
+										<a class="link-arrow" href={gara.data.link} target="_blank" rel="noreferrer">
+											Informazioni e iscrizioni
+										</a>
+									)}
+								</div>
+							</li>
+						))}
+					</ul>
+				) : (
+					<p class="empty-state">Calendario in aggiornamento.</p>
+				)
+			}
+		</div>
+	</section>
+
+	{
+		passate.length > 0 && (
+			<section class="section section--soft">
+				<div class="container">
+					<div class="section__head">
+						<p class="eyebrow">Archivio</p>
+						<h2 class="title-underline">Gare passate</h2>
+					</div>
+
+					<ul class="event-list">
+						{passate.map((gara) => (
+							<li class="event-card event-card--past">
+								<time
+									class="event-card__date"
+									datetime={gara.data.data.toISOString().slice(0, 10)}
+								>
+									<span class="event-card__weekday">{giornoSettimana(gara.data.data)}</span>
+								</time>
+								<div class="event-card__body">
+									<p class="card__kicker">
+										{gara.data.esempio && !isTrial(gara.data.titolo) ? "[ESEMPIO] · " : ""}
+										{gara.data.tipo}
+										{gara.data.distanza ? ` · ${gara.data.distanza}` : ""}
+									</p>
+									<h3>{gara.data.titolo}</h3>
+									<p class="event-card__place">{gara.data.luogo}</p>
+									{gara.data.descrizione && <p>{gara.data.descrizione}</p>}
+									{isWebUrl(gara.data.link) && (
+										<a class="link-arrow" href={gara.data.link} target="_blank" rel="noreferrer">
+											Informazioni e iscrizioni
+										</a>
+									)}
+								</div>
+							</li>
+						))}
+					</ul>
+				</div>
+			</section>
+		)
+	}
+</Layout>

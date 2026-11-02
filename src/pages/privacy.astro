@@ -1,0 +1,38 @@
+---
+import { getEntry, render } from "astro:content";
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+
+const pagina = await getEntry("pagine", "privacy");
+if (!pagina) throw new Error("Pagina Privacy non trovata.");
+
+const { Content } = await render(pagina);
+const corpoVuoto = !pagina.body?.trim();
+---
+
+<Layout
+	title={pagina.data.titolo}
+	description={pagina.data.descrizione ?? pagina.data.intro}
+>
+	<PageHero
+		eyebrow="Informazioni legali"
+		title={pagina.data.titolo}
+		lead={pagina.data.intro ?? pagina.data.descrizione}
+	/>
+
+	<section class="section section--light">
+		<div class="container article-shell">
+			<div class="prose">
+				{corpoVuoto ? (
+					import.meta.env.DEV && (
+						<p class="page-placeholder">
+							Testo della pagina da completare dal pannello di gestione.
+						</p>
+					)
+				) : (
+					<Content />
+				)}
+			</div>
+		</div>
+	</section>
+</Layout>

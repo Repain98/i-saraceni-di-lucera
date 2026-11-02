@@ -1,0 +1,24 @@
+---
+import PageHero from "../components/PageHero.astro";
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout
+	title="Pagina non trovata"
+	description="La pagina richiesta non esiste o è stata spostata."
+>
+	<PageHero
+		eyebrow="Errore 404"
+		title="Pagina non trovata"
+		lead="La pagina che cerchi non esiste o è stata spostata. Torna alla home o consulta il calendario delle gare."
+	/>
+
+	<section class="section section--light">
+		<div class="container">
+			<div class="hero__actions">
+				<a class="btn" href="/"><span>Torna alla home</span></a>
+				<a class="btn btn--outline" href="/calendario"><span>Calendario gare</span></a>
+			</div>
+		</div>
+	</section>
+</Layout>

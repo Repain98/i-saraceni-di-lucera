@@ -1,19 +1,343 @@
 backend:
   name: github
-  repo: "your-username/your-repo"
+  repo: Repain98/i-saraceni-di-lucera
   branch: main
-  # base_url and auth_endpoint will be set after you configure your OAuth proxy
-site_url: "https://your-site.com" # the URL of your site
 
-media_folder: "public/images/uploads"
-public_folder: "/images/uploads"
+site_url: https://i-saraceni-di-lucera.pages.dev
+locale: it
+local_backend: true
+publish_mode: simple
+media_folder: src/assets/uploads
+public_folder: /images/uploads
 
 collections:
-  - name: "pages"
-    label: "Pages"
-    folder: "src/pages" # the folder where your CMS managed Astro pages are located
+  - name: impostazioni
+    label: Impostazioni del sito
+    label_singular: Impostazioni
+    description: Dati della società, pagina iniziale e numeri in evidenza.
+    files:
+      - name: dati-societa
+        label: Dati della società
+        file: src/content/impostazioni/dati-societa.md
+        fields:
+          - { label: Nome del sito, name: nome_sito, widget: string }
+          - { label: Descrizione breve, name: descrizione_sito, widget: text, required: false }
+          - {
+              label: "Anno di fondazione [DA CONFERMARE]",
+              name: anno_fondazione,
+              widget: string,
+              hint: "Se il dato non è verificato, lascia [DA CONFERMARE].",
+            }
+          - { label: Codice FIDAL, name: codice_fidal, widget: string }
+          - { label: Email, name: email, widget: string, hint: "Scrivi l'indirizzo completo oppure [DA COMPILARE]." }
+          - { label: Telefono, name: telefono, widget: string, hint: "Inserisci il numero oppure [DA COMPILARE]." }
+          - {
+              label: WhatsApp,
+              name: whatsapp,
+              widget: string,
+              hint: "Scrivi il numero con il prefisso, ad esempio +39...",
+            }
+          - { label: Sede e indirizzo, name: sede, widget: string, hint: "Indirizzo della sede oppure [DA COMPILARE]." }
+          - {
+              label: Link Google Maps,
+              name: google_maps,
+              widget: string,
+              required: false,
+              hint: "Incolla il link completo alla mappa della sede.",
+            }
+          - { label: Facebook, name: facebook, widget: string, required: false, hint: "URL completo del profilo." }
+          - { label: Instagram, name: instagram, widget: string, required: false, hint: "URL completo del profilo." }
+          - { label: YouTube, name: youtube, widget: string, required: false, hint: "URL completo del canale." }
+          - { label: Testo del footer, name: testo_footer, widget: text }
+
+      - name: pagina-iniziale
+        label: Pagina iniziale
+        file: src/content/impostazioni/pagina-iniziale.md
+        fields:
+          - { label: Etichetta della copertina, name: hero_etichetta, widget: string }
+          - { label: Titolo della copertina, name: hero_titolo, widget: string }
+          - {
+              label: Seconda parte del titolo, in evidenza,
+              name: hero_titolo_evidenziato,
+              widget: string,
+              hint: "Compare sotto il titolo principale.",
+            }
+          - { label: Testo della copertina, name: hero_testo, widget: text }
+          - {
+              label: Foto di copertina,
+              name: hero_immagine,
+              widget: image,
+              required: false,
+              hint: "JPG, PNG o WebP. Non caricare HEIC.",
+            }
+
+      - name: numeri
+        label: Numeri in evidenza
+        file: src/content/impostazioni/numeri.md
+        fields:
+          - label: Numeri in evidenza
+            name: statistiche
+            widget: list
+            summary: "{{fields.etichetta}}: {{fields.valore}}"
+            fields:
+              - { label: Valore, name: valore, widget: string, hint: "Usa [DA COMPILARE] finché il dato non è verificato." }
+              - { label: Etichetta, name: etichetta, widget: string }
+
+  - name: news
+    label: News
+    label_singular: Notizia
+    folder: src/content/news
     create: true
     slug: "{{slug}}"
+    identifier_field: titolo
+    description: Notizie e aggiornamenti del club.
     fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: Titolo, name: titolo, widget: string }
+      - {
+          label: Data,
+          name: data,
+          widget: datetime,
+          date_format: DD/MM/YYYY,
+          time_format: false,
+          format: YYYY-MM-DD,
+          required: false,
+          hint: "Lascia vuoto per le notizie di esempio non datate.",
+        }
+      - { label: Categoria, name: categoria, widget: string, required: false, hint: "Es. Stralucera, La società, Stagione 2026." }
+      - { label: Estratto, name: estratto, widget: text, hint: "Testo breve mostrato nelle card." }
+      - {
+          label: Copertina,
+          name: copertina,
+          widget: image,
+          required: false,
+          hint: "JPG, PNG o WebP. Non caricare HEIC.",
+        }
+      - {
+          label: Voce di prova,
+          name: esempio,
+          widget: boolean,
+          default: false,
+          hint: "Aggiungi [ESEMPIO] nel titolo e attiva questa voce se i dati non sono definitivi.",
+        }
+      - { label: Testo, name: body, widget: markdown, required: false }
+
+  - name: gare
+    label: Calendario gare
+    label_singular: Gara
+    folder: src/content/gare
+    create: true
+    slug: "{{slug}}"
+    identifier_field: titolo
+    description: Le prossime gare e gli appuntamenti del calendario.
+    fields:
+      - { label: Titolo, name: titolo, widget: string }
+      - { label: Data, name: data, widget: datetime, date_format: DD/MM/YYYY, time_format: false, format: YYYY-MM-DD }
+      - { label: Luogo, name: luogo, widget: string, hint: "Es. Lucera (FG)." }
+      - { label: Distanza, name: distanza, widget: string, required: false, hint: "Es. 9,9 km. Metti eventuali note nella descrizione." }
+      - {
+          label: Tipo di gara,
+          name: tipo,
+          widget: select,
+          options: [Strada, Campestre, Pista, Trail, Altro],
+          default: Strada,
+        }
+      - { label: Descrizione, name: descrizione, widget: text, required: false }
+      - { label: Link per iscrizioni o informazioni, name: link, widget: string, required: false, hint: "URL completo, se disponibile." }
+      - {
+          label: Gara di prova,
+          name: esempio,
+          widget: boolean,
+          default: false,
+          hint: "Aggiungi [ESEMPIO] nel titolo e attiva questa voce se i dati non sono definitivi.",
+        }
+
+  - name: palmares
+    label: Palmarès
+    label_singular: Voce del palmarès
+    folder: src/content/palmares
+    create: true
+    slug: "{{slug}}"
+    identifier_field: competizione
+    description: I risultati e i traguardi della società.
+    fields:
+      - { label: Anno, name: anno, widget: number, value_type: int }
+      - {
+          label: Anno da confermare,
+          name: anno_da_confermare,
+          widget: boolean,
+          default: false,
+          hint: "Se attivo, il sito mostra [ANNO DA CONFERMARE].",
+        }
+      - { label: Competizione, name: competizione, widget: string }
+      - { label: Categoria, name: categoria, widget: string, required: false }
+      - { label: Risultato, name: risultato, widget: string, required: false }
+      - { label: Descrizione, name: descrizione, widget: text, required: false }
+      - {
+          label: Voce di prova,
+          name: esempio,
+          widget: boolean,
+          default: false,
+          hint: "Aggiungi [ESEMPIO] nella competizione e attiva questa voce se i dati non sono definitivi.",
+        }
+
+  - name: stralucera
+    label: Stralucera
+    label_singular: Edizione Stralucera
+    folder: src/content/stralucera
+    create: true
+    slug: "{{slug}}"
+    identifier_field: anno
+    description: Dati e risultati delle edizioni della Stralucera.
+    fields:
+      - { label: Anno, name: anno, widget: number, value_type: int }
+      - { label: Numero dell'edizione, name: edizione, widget: number, value_type: int, hint: "1 = prima edizione." }
+      - { label: Data, name: data, widget: datetime, date_format: DD/MM/YYYY, time_format: false, format: YYYY-MM-DD }
+      - { label: Orario di partenza, name: partenza, widget: string, hint: "Es. 9:00." }
+      - { label: Luogo, name: luogo, widget: string }
+      - { label: Distanza, name: distanza, widget: string, hint: "Es. 9,9 km. Metti eventuali note nella descrizione." }
+      - { label: Circuito, name: circuito, widget: string, required: false }
+      - { label: Organizzazione, name: organizzazione, widget: string, required: false }
+      - { label: Partecipanti, name: partecipanti, widget: string, required: false, hint: "Es. Oltre 350." }
+      - { label: Maglia, name: maglia, widget: string, required: false }
+      - { label: Medaglia, name: medaglia, widget: string, required: false }
+      - { label: Descrizione, name: descrizione, widget: text, required: false }
+      - {
+          label: Immagine,
+          name: immagine,
+          widget: image,
+          required: false,
+          hint: "JPG, PNG o WebP. Non caricare HEIC.",
+        }
+      - { label: Nota o fonte, name: nota_fonte, widget: string, required: false, hint: "Fonte o nota sui risultati." }
+      - { label: Titolo invito, name: invito_titolo, widget: string, required: false, hint: "Titolo del blocco finale." }
+      - { label: Testo invito, name: invito_testo, widget: text, required: false, hint: "Testo del blocco finale." }
+      - label: Vincitori
+        name: vincitori
+        widget: list
+        required: false
+        summary: "{{fields.nome}} - {{fields.tempo}}"
+        fields:
+          - { label: Nome, name: nome, widget: string }
+          - { label: Società, name: societa, widget: string, required: false }
+          - { label: Tempo, name: tempo, widget: string, required: false, hint: "Es. 32'16\"." }
+
+  - name: sponsor
+    label: Sponsor
+    label_singular: Sponsor
+    folder: src/content/sponsor
+    create: true
+    slug: "{{slug}}"
+    identifier_field: nome
+    description: Aziende e partner che sostengono la società.
+    fields:
+      - { label: Nome, name: nome, widget: string }
+      - {
+          label: Logo,
+          name: logo,
+          widget: image,
+          required: false,
+          hint: "JPG, PNG o WebP. Non caricare HEIC.",
+        }
+      - { label: Sito web, name: sito, widget: string, required: false, hint: "URL completo, se disponibile." }
+      - {
+          label: Livello,
+          name: livello,
+          widget: select,
+          options: [Principale, Sostenitore, Tecnico, Altro],
+          default: Sostenitore,
+        }
+      - { label: Ordine, name: ordine, widget: number, value_type: int, default: 0 }
+      - {
+          label: Sponsor di prova,
+          name: esempio,
+          widget: boolean,
+          default: false,
+          hint: "Aggiungi [ESEMPIO] nel nome se i dati non sono definitivi.",
+        }
+
+  - name: galleria
+    label: Galleria
+    label_singular: Album
+    folder: src/content/galleria
+    create: true
+    slug: "{{slug}}"
+    identifier_field: titolo
+    description: Album fotografici delle gare e degli allenamenti.
+    fields:
+      - { label: Titolo, name: titolo, widget: string }
+      - {
+          label: Data,
+          name: data,
+          widget: datetime,
+          date_format: DD/MM/YYYY,
+          time_format: false,
+          format: YYYY-MM-DD,
+          required: false,
+        }
+      - { label: Descrizione, name: descrizione, widget: text, required: false }
+      - {
+          label: Copertina,
+          name: copertina,
+          widget: image,
+          required: false,
+          hint: "JPG, PNG o WebP. Non caricare HEIC.",
+        }
+      - label: Immagini
+        name: immagini
+        widget: list
+        required: false
+        field:
+          label: Immagine
+          name: immagine
+          widget: image
+        hint: "Puoi caricare più foto nello stesso album."
+      - {
+          label: Album di prova,
+          name: esempio,
+          widget: boolean,
+          default: false,
+          hint: "Aggiungi [ESEMPIO] nel titolo se i dati non sono definitivi.",
+        }
+
+  - name: allenamenti
+    label: Giorni e orari degli allenamenti
+    label_singular: Giorno di allenamento
+    folder: src/content/allenamenti
+    create: true
+    slug: "{{slug}}"
+    identifier_field: giorno
+    description: Giorni, orari e luoghi degli allenamenti.
+    fields:
+      - { label: Giorno, name: giorno, widget: string, hint: "Es. Martedì." }
+      - { label: Orario, name: orario, widget: string, hint: "Es. 18:30." }
+      - { label: Luogo, name: luogo, widget: string }
+      - { label: Note, name: note, widget: text, required: false }
+      - { label: Ordine, name: ordine, widget: number, value_type: int, default: 0 }
+      - {
+          label: Giorno di prova,
+          name: esempio,
+          widget: boolean,
+          default: false,
+          hint: "Aggiungi [ESEMPIO] nel giorno se i dati non sono definitivi.",
+        }
+
+  - name: pagine
+    label: Pagine
+    label_singular: Pagina
+    folder: src/content/pagine
+    create: true
+    slug: "{{slug}}"
+    identifier_field: titolo
+    description: Testi delle pagine istituzionali.
+    fields:
+      - { label: Titolo, name: titolo, widget: string }
+      - { label: Descrizione, name: descrizione, widget: text, required: false }
+      - { label: Introduzione, name: intro, widget: text, required: false }
+      - {
+          label: Immagine,
+          name: immagine,
+          widget: image,
+          required: false,
+          hint: "JPG, PNG o WebP. Non caricare HEIC.",
+        }
+      - { label: Testo, name: body, widget: markdown, required: false }

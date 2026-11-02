@@ -1,0 +1,45 @@
+---
+import { getCollection } from "astro:content";
+import NewsCard from "../../components/NewsCard.astro";
+import PageHero from "../../components/PageHero.astro";
+import Layout from "../../layouts/Layout.astro";
+
+const news = (await getCollection("news")).sort(
+	(a, b) => (b.data.data?.getTime() ?? 0) - (a.data.data?.getTime() ?? 0),
+);
+---
+
+<Layout
+	title="News"
+	description="Notizie, gare e aggiornamenti dell'ASD I Saraceni di Lucera."
+>
+	<PageHero
+		eyebrow="Dal gruppo"
+		title="News"
+		lead="Gare, allenamenti e vita della società. Le notizie di prova sono indicate con [ESEMPIO]."
+	/>
+
+	<section class="section section--light">
+		<div class="container">
+			{
+				news.length > 0 ? (
+					<div class="news-grid">
+						{news.map((notizia) => (
+							<NewsCard
+								titolo={notizia.data.titolo}
+								estratto={notizia.data.estratto}
+								data={notizia.data.data}
+								categoria={notizia.data.categoria}
+								copertina={notizia.data.copertina}
+								esempio={notizia.data.esempio}
+								href={`/news/${notizia.id}`}
+							/>
+						))}
+					</div>
+				) : (
+					<p class="empty-state">Notizie in arrivo.</p>
+				)
+			}
+		</div>
+	</section>
+</Layout>
