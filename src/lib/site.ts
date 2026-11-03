@@ -22,6 +22,7 @@ export async function getSiteData() {
 		hero_testo: paginaIniziale.data.hero_testo,
 		hero_immagine: paginaIniziale.data.hero_immagine,
 		statistiche: numeri.data.statistiche,
+		noindex: siteConfig.noindex !== false,
 		notaFotoSegnaposto: siteConfig.notaFotoSegnaposto,
 	};
 }

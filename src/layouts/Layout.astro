@@ -27,7 +27,7 @@ const {
 	title = `${siteName} – Podismo a Lucera`,
 	description = defaultDescription,
 	image,
-	noindex = false,
+	noindex = site.noindex,
 } = Astro.props;
 
 const pageTitle = title.includes(siteName) ? title : `${title} | ${siteName}`;

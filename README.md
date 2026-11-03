@@ -49,6 +49,12 @@ Non è presente alcun backend `test-repo`. L'accesso locale è attivo solo quand
 
 La pagina di gestione risponde sia a `/admin` sia a `/admin/`.
 
+## Indicizzazione
+
+Il flag `noindex` in `src/data/site.json` è attivo di default (`true`): tutte le pagine includono `<meta name="robots" content="noindex, nofollow">`, `/robots.txt` blocca i crawler con `Disallow: /` e la sitemap non viene generata.
+
+Al lancio ufficiale impostare `noindex: false`. In questo modo le pagine passano a `index, follow`, `/robots.txt` permette tutto con `Allow: /` e la build genera la sitemap.
+
 ## Contenuti
 
 - `src/content/impostazioni/`: dati della società, pagina iniziale e numeri in evidenza.

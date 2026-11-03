@@ -1,4 +1,5 @@
 // @ts-check
+import sitemap from "@astrojs/sitemap";
 import { defineConfig } from "astro/config";
 import fs from "node:fs";
 import path from "node:path";
@@ -9,6 +10,10 @@ import { fileURLToPath } from "node:url";
 const SITE_URL = "https://i-saraceni-di-lucera.pages.dev";
 
 const rootDir = path.dirname(fileURLToPath(import.meta.url));
+const siteConfig = JSON.parse(
+	fs.readFileSync(path.join(rootDir, "src", "data", "site.json"), "utf8"),
+);
+const noindex = siteConfig.noindex !== false;
 const uploadsDir = path.join(rootDir, "src", "assets", "uploads");
 const uploadsUrlPrefix = "/images/uploads/";
 const mimeTypes = {
@@ -64,5 +69,14 @@ const uploadsIntegration = {
 export default defineConfig({
 	site: SITE_URL,
 	devToolbar: { enabled: false },
-	integrations: [uploadsIntegration],
+	integrations: [
+		uploadsIntegration,
+		...(noindex
+			? []
+			: [
+					sitemap({
+						filter: (page) => !page.includes("/admin/") && !page.includes("/404"),
+					}),
+				]),
+	],
 });
