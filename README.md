@@ -1,53 +1,43 @@
 # I Saraceni di Lucera
 
-Sito statico dell'ASD I Saraceni di Lucera, realizzato con Astro e gestito con Decap CMS. I contenuti vengono salvati come file Markdown nel repository e pubblicati su Cloudflare Pages.
+Sito statico dell'ASD I Saraceni di Lucera, realizzato con Astro e gestito con Sveltia CMS. I contenuti vengono salvati come file Markdown nel repository e pubblicati su Cloudflare Pages.
 
 ## Sviluppo locale
 
-Requisiti: Node.js e npm.
+Requisiti: Node.js, npm e, per il CMS locale, un browser basato su Chromium.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Il sito è disponibile su `http://localhost:4321`.
+Il sito è disponibile su `http://localhost:4321`. Il comando `predev` copia il bundle Sveltia in `public/admin/sveltia-cms.js`.
 
 ## Gestione contenuti in locale
 
-Per modificare i contenuti con Decap CMS senza creare commit o inviare dati online:
-
-```bash
-npm run dev:cms
-```
-
-Questo comando avvia insieme:
-
-- Astro su `http://localhost:4321`;
-- `decap-server` su `http://localhost:8081`.
-
-Apri `http://localhost:4321/admin` e premi **Accedi**. In locale Decap usa il backend locale e scrive direttamente i file dentro `src/content`, senza autenticazione GitHub.
-
-Se preferisci avviare i due processi separatamente:
+Per modificare i contenuti con Sveltia CMS:
 
 ```bash
 npm run dev
-npm run cms
 ```
 
-`decap-server` non è una dipendenza del progetto: viene eseguito con `npx --yes`.
+Apri `http://localhost:4321/admin/index.html`, scegli **Work with Local Repository** e seleziona la cartella principale del progetto. Sveltia scrive direttamente nei file locali, senza autenticazione GitHub e senza server proxy.
+
+Il flusso locale richiede Chrome, Edge, Brave o un altro browser Chromium. In Brave bisogna abilitare il flag `brave://flags/#file-system-access-api`.
+
+Le modifiche possono essere commitate manualmente con Git. In alternativa, in **Settings > Developer**, attiva **Commit Changes to Git**; in tal caso configura nome ed email nel repository con `git config --local user.name` e `git config --local user.email`.
 
 ## Produzione
 
-In produzione il CMS usa esclusivamente il backend GitHub configurato in `public/admin/config.yml`:
+In produzione il CMS usa il backend GitHub configurato in `public/admin/config.yml`:
 
 - repository: `Repain98/i-saraceni-di-lucera`;
 - branch: `main`;
-- accesso solo tramite autenticazione GitHub.
+- autenticazione tramite `base_url: https://sveltia-cms-auth.repain.workers.dev`.
 
-Non è presente alcun backend `test-repo`. L'accesso locale è attivo solo quando `decap-server` è in esecuzione sul computer dello sviluppatore.
+Ogni salvataggio crea un commit su `main` e Cloudflare Pages ripubblica il sito. La pagina di gestione è raggiungibile su `/admin`, che reindirizza a `/admin/` tramite `public/_redirects`.
 
-La pagina di gestione risponde sia a `/admin` sia a `/admin/`.
+Il bundle `public/admin/sveltia-cms.js` viene copiato da `node_modules/@sveltia/cms/dist/sveltia-cms.js` da `scripts/sync-sveltia-cms.mjs` durante `predev` e `prebuild`; è generato e non va versionato.
 
 ## Indicizzazione
 

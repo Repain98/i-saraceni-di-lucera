@@ -1,11 +1,11 @@
 {
-  "name": "astro-decap-cloudflare-starter",
+  "name": "i-saraceni-di-lucera",
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "predev": "node scripts/sync-sveltia-cms.mjs",
     "dev": "astro dev",
-    "dev:cms": "node scripts/dev-cms.mjs",
-    "cms": "npx --yes decap-server",
+    "prebuild": "node scripts/sync-sveltia-cms.mjs",
     "build": "astro build",
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "preview": "astro preview",
@@ -15,6 +15,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "@fontsource/barlow-condensed": "^5.3.0",
     "@fontsource/inter": "^5.3.0",
+    "@sveltia/cms": "0.258.0",
     "astro": "^5.0.9"
   }
 }

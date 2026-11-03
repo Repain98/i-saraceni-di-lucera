@@ -24,7 +24,7 @@ const mimeTypes = {
 	".webp": "image/webp",
 };
 
-// I file caricati da Decap stanno in src/assets/uploads per essere ottimizzati da Astro.
+// I file caricati dal CMS stanno in src/assets/uploads per essere ottimizzati da Astro.
 // Questo integration li rende raggiungibili anche all'indirizzo pubblico usato dal CMS.
 const uploadsIntegration = {
 	name: "uploads-statici",

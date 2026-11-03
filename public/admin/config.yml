@@ -2,13 +2,25 @@ backend:
   name: github
   repo: Repain98/i-saraceni-di-lucera
   branch: main
+  base_url: https://sveltia-cms-auth.repain.workers.dev
 
 site_url: https://i-saraceni-di-lucera.pages.dev
-locale: it
-local_backend: true
 publish_mode: simple
-media_folder: src/assets/uploads
+media_folder: /src/assets/uploads
 public_folder: /images/uploads
+
+output:
+  omit_empty_optional_fields: true
+
+media_libraries:
+  default:
+    config:
+      transformations:
+        raster_image:
+          format: webp
+          quality: 85
+          width: 2000
+          height: 2000
 
 collections:
   - name: impostazioni

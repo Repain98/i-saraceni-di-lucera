@@ -4,6 +4,12 @@ dist/
 # generated types
 .astro/
 
+# generated Sveltia CMS bundle
+public/admin/sveltia-cms.js
+
+# Sveltia CMS temporary files
+**/.sveltia-tmp-*
+
 # dependencies
 node_modules/
 
